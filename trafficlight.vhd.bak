@@ -1,0 +1,107 @@
+-- Jared Day
+-- 11/6/2017
+
+-- Traffic Light Problem 1-8 (Mealy - Emergency). Create State Machine in VHDL. Use 1Hz internal clock
+-- from Georgia Tech clock divider. User VHDL hierarchy (new way) for top level (not schematic diagram). 
+-- Force recovery from hang-up states by using the "Safe" attributein your VHDL code [ see my VHDL lecture 
+-- part 3 "FSM and FSMD" and also the two Altera State Machine files (ASU-Learn Course Materials Section) I 
+-- extracted from the Quartus II Manual and Handbook].
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY trafficlight IS 
+PORT( 
+		i_emer	: IN std_logic;			-- emergency input
+		i_clk		: IN std_logic;			-- the system clock
+		
+		o_NSG		: OUT std_logic;			-- North South Green
+		o_NSY		: OUT std_logic;			-- North South Yellow
+		o_NSR		: OUT std_logic;			-- North South Red
+		o_EWG		: OUT std_logic;			-- East West Green
+		o_EWY 	: OUT std_logic;			-- East West Yellow
+		o_EWR		: OUT std_logic;			-- East West Red
+		);
+END trafficlight;
+
+ARCHITECTURE ckt OF trafficlight IS
+	TYPE STATE_TYPE IS (State0, State1, State2, State3, State4);
+	SIGNAL state_reg: STATE_TYPE;
+BEGIN
+
+-- This is the State Register.
+PROCESS(clk)
+BEGIN
+	IF(i_clk'Event AND i_clk = '1') THEN
+		state_reg <= state_next;
+	END IF;
+END PROCESS;
+
+PROCESS
+BEGIN
+	CASE state IS
+		WHEN State0 =>
+			o_NSG <= '1';						-- Assignments for state0
+			o_EWR <= '1';
+			
+			IF(i_emer = '1') THEN			-- If emergency is pushed go to that state.
+			state_next <= State4;				-- got to emerstate.
+			ELSE
+			state_next <= State0;
+			END IF;
+		
+			WHEN State1 =>
+			o_NSY <= '1';
+			o_EWR <= '1';
+			
+			IF(i_emer = '1') THEN			-- If emergency is pushed go to that state.
+			state_next <= State4;				-- got to emerstate.
+			ELSE
+			state_next <= State1;
+			END IF;
+			
+			WHEN State2 =>
+			o_NSR <= '1';
+			o_EWG <= '1';
+			
+			IF(i_emer = '1') THEN			-- If emergency is pushed go to that state.
+			state_next <= State4;				-- got to emerstate.
+			ELSE
+			state_next <= State2;
+			END IF;
+			
+			WHEN State3 =>
+			o_NSR <= '1';
+			o_EWY <= '1';
+			
+			IF(i_emer = '1') THEN			-- If emergency is pushed go to that state.
+			state_next <= State4;				-- got to emerstate.
+			ELSE
+			state_next <= State3;
+			END IF;
+			
+			WHEN State4 =>
+			o_NSR <= '1';
+			o_EWR <= '1';
+			
+			IF(i_emer = '1') THEN			-- If emergency is pushed go to that state.
+			state_next <= State4;				-- got to emerstate.
+			ELSE
+			state_next <= state_next;
+			END IF;
+		END CASE;
+	END PROCESS;
+END ckt;	
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
